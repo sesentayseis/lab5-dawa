@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat con Socket.IO</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+      #messages {
+        overflow-y: scroll;
+        max-height: 300px;
+      }
+      .message {
+        padding: 10px;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        width: 70%;
+      }
+      .message.sent {
+        background-color: #00ff00;
+        float: right;
+      }
+      .message.received {
+        background-color: #eaeaea;
+        float: left;
+      }
+      .message img {
+        width: 50px;
+        height: 50px;
+        border-radius: 25px;
+        margin-right: 10px;
+      }
+      .container {
+        display: flex;
+        height: 300px; /* altura opcional */
+      }
+
+      .left,
+      .right {
+        flex: 1;
+        height: 100%;
+        /* otros estilos de diseño, como background-color */
+      }
+    </style>
+    <script>
+      // Conexión de Socket.IO al servidor
+      var socket = io();
+
+      // Función para enviar mensajes
+      function enviarMensaje() {
+        var nombre = document.getElementById("nombre").value;
+        var imagen = document.getElementById("imagen").value;
+        var mensaje = document.getElementById("mensaje").value;
+        var fecha = new Date();
+        var hora = fecha.getHours() + ":" + fecha.getMinutes();
+        socket.emit("chat message", {
+          nombre: nombre,
+          imagen: imagen,
+          mensaje: mensaje,
+          hora: hora,
+        });
+        document.getElementById("mensaje").value = "";
+        return false;
+      }
+      function enviarMensaje2() {
+        var nombre2 = document.getElementById("nombre2").value;
+        var imagen2 = document.getElementById("imagen2").value;
+        var mensaje2 = document.getElementById("mensaje2").value;
+        var fecha = new Date();
+        var hora2 = fecha.getHours() + ":" + fecha.getMinutes();
+        socket.emit("chat message", {
+          nombre: nombre2,
+          imagen: imagen2,
+          mensaje: mensaje2,
+          hora: hora2,
+        });
+        document.getElementById("mensaje2").value = "";
+        return false;
+      }
+
+      // Función para recibir mensajes
+      socket.on("chat message", function (msg) {
+        var listaMensajes = document.getElementById("lista-mensajes");
+        var mensaje = document.createElement("li");
+        mensaje.className =
+          "message " +
+          (msg.nombre === document.getElementById("nombre").value
+            ? "sent"
+            : "received");
+        var contenido =
+          '<img src="' +
+          msg.imagen +
+          '" alt="' +
+          msg.nombre +
+          '"> <strong>' +
+          msg.nombre +
+          ":</strong> " +
+          msg.mensaje +
+          " <span>(" +
+          msg.hora +
+          ")</span>";
+        mensaje.innerHTML = contenido;
+        listaMensajes.appendChild(mensaje);
+        listaMensajes.scrollTop = listaMensajes.scrollHeight;
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Chats</h1>
+    <div class="container">
+      <div class="left">
+        <h2>Usuario 1</h2>
+        <form onsubmit="return enviarMensaje()">
+          <input id="nombre" placeholder="Nombre" autocomplete="off" /><br />
+          <input
+            id="imagen"
+            placeholder="URL de la imagen de perfil"
+            autocomplete="off"
+            style="width: 80%"
+          /><br />
+          <textarea
+            id="mensaje"
+            placeholder="Mensaje"
+            autocomplete="off"
+            style="width: 80%; height: 100%"
+          ></textarea
+          ><br />
+          <button>Enviar</button>
+        </form>
+      </div>
+      <div class="right">
+        <h2>Usuario 2</h2>
+        <form onsubmit="return enviarMensaje2()">
+          <input id="nombre2" placeholder="Nombre" autocomplete="off" /><br />
+          <input
+            id="imagen2"
+            placeholder="URL de la imagen de perfil"
+            autocomplete="off"
+            style="width: 80%"
+          /><br />
+          <textarea
+            id="mensaje2"
+            placeholder="Mensaje"
+            autocomplete="off"
+            style="width: 80%; height: 100%"
+          ></textarea
+          ><br />
+          <button>Enviar</button>
+        </form>
+      </div>
+    </div>
+
+    <h1>Mensajes</h1>
+    <ul id="lista-mensajes"></ul>
+  </body>
+</html>
